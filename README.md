@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SihleB Shuttle App
 
-## Getting Started
+A mobile-first customer app built with Next.js, TypeScript, Tailwind CSS and Capacitor. It includes a branded welcome screen, a temporary demo login, registration screens, guest entry, a customer dashboard, a seven-step booking experience, profile navigation and help.
 
-First, run the development server:
+The demo login is client-side demonstration authentication only, not secure production authentication. It stores only demo account metadata in local storage; the password is never persisted. Booking submission is not connected, booking details stay in page state only, and the quotation screen is a placeholder rather than a price offer.
+
+## Run locally
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Run the source checks with:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+```
 
-## Learn More
+The build produces a static Next.js export in `out/`, which is the web bundle used by Capacitor.
 
-To learn more about Next.js, take a look at the following resources:
+## Google Maps setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Location suggestions and map pin selection use the Google Maps JavaScript API and Places API (New). To enable them, create a browser API key restricted to the app’s allowed origins and APIs, then provide it in `.env.local`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-restricted-browser-key
+```
 
-## Deploy on Vercel
+Rebuild after changing the key with `npm run cap:sync`. `NEXT_PUBLIC_` values are included in the exported client bundle, so use only a browser-restricted key, never a service-account credential or private API secret. Without a key, manual location entry remains available and the map explains that it is not configured.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Android and iOS
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Both native Capacitor projects are in `android/` and `ios/`. Build the web app and synchronize its files to the native projects with:
+
+```bash
+npm run cap:sync
+```
+
+Open the native projects with:
+
+```bash
+npm run cap:open:android
+npm run cap:open:ios
+```
+
+Android builds require Android Studio and the Android SDK. iOS builds require macOS and Xcode. The iOS project can be scaffolded on other platforms, but it cannot be built there.
+
+## Architecture notes
+
+Capacitor packages the static customer UI. The demo credentials are visible in the client bundle, and the local-storage session can be inspected or modified; this is not production authentication and must not be used for real customer data. Production authentication, booking, pricing and payment features need an appropriately secured API. Database credentials and payment secrets must stay on the server and out of the app bundle.
